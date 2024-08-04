@@ -35,7 +35,7 @@ jobs:
       run: |
           install -m 600 -D /dev/sda1 ~/.ssh/id_rsa
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} > ~/.ssh/known_hosts
+          sudo ssh-keyscan -H ${{ secrets.SERVER_HOST }} > ~/.ssh/known_hosts
     - name: connect and pull
       run: ssh ubuntu@${{ secrets.SERVER_HOST }} "cd ${{ secrets.WORK_DIR }} && sudo docker-compose down && sudo docker-compose pull && sudo docker-compose up -d && exit"
     - name: cleanup
