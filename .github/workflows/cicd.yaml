@@ -1,31 +1,25 @@
-name: Deploy Application
+name: CICD
 
 on:
   push:
-    branches:
+    branches: 
       - master
+    paths-ignore:
+      - 'Readme.md'
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v2
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
 
-    - name: Cache Docker layers
-      uses: actions/cache@v2
-      with:
-        path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-buildx-
-
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v2
+    - name: Log in to DockerHub
+      uses: docker/login-action@v1
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -38,13 +32,12 @@ jobs:
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:${{github.run_id}}
     - name: Deploy to Server
-      uses: appleboy/ssh-action@v0.1.5
+      uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.SERVER_HOST }}
         username: ${{ secrets.SERVER_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22
         script: |
-          docker-compose pull
-          docker-compose up -d
-        
+          cd /home/ubuntu/nodejs-app
+          docker-compose down && docker-compose up -d
