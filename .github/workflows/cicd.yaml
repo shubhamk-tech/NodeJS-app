@@ -30,11 +30,13 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build and push Docker images
-      run: |
-        docker-compose -f docker-compose.yml build
-        docker-compose -f docker-compose.yml push
-
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/nodejs-app:${{github.run_id}}
     - name: Deploy to Server
       uses: appleboy/ssh-action@v0.1.5
       with:
